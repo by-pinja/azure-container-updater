@@ -1,0 +1,2 @@
+# Azure container image updater
+

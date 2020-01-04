@@ -2,8 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>azure_container_updater</RootNamespace>
+    <RootNamespace>Container.Updater</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
+    <PackageReference Include="Protacon.NetCore.WebApi.ApiKeyAuth" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.29.1" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <None Include="README.md" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 </Project>

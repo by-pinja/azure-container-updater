@@ -1,17 +1,16 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Container.Updater.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using Protacon.NetCore.WebApi.ApiKeyAuth;
 
-namespace azure_container_updater
+namespace Container.Updater
 {
     public class Startup
     {
@@ -25,6 +24,26 @@ namespace azure_container_updater
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddOptions<AzureAuthentication>()
+                .Bind(Configuration.GetSection("AzureAuthentication"))
+                .ValidateDataAnnotations();
+
+            services.AddAuthentication()
+                .AddApiKeyAuth(options =>
+                {
+                    if (Configuration.GetChildren().All(x => x.Key != "ApiAuthentication"))
+                        throw new InvalidOperationException($"Expected 'ApiAuthentication' section.");
+
+                    var keys = Configuration.GetSection("ApiAuthentication:Keys")
+                        .AsEnumerable()
+                        .Where(x => x.Value != null)
+                        .Select(x => x.Value);
+
+                    options.ValidApiKeys = keys;
+                });
+
+            AddSwaggerGenConfiguration(services);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -34,7 +53,14 @@ namespace azure_container_updater
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pdf.Storage");
+                c.RoutePrefix = "doc";
+
+            });
 
             app.UseRouting();
 
@@ -43,6 +69,25 @@ namespace azure_container_updater
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+        }
+
+        private static IServiceCollection AddSwaggerGenConfiguration(IServiceCollection services)
+        {
+            return services.AddSwaggerGen(c =>
+            {
+                var basePath = AppContext.BaseDirectory;
+
+                c.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Title = "Azure.Container.Updater",
+                        Version = "v1",
+                        Description = File.ReadAllText(Path.Combine(basePath, "README.md"))
+                    });
+
+                c.AddSecurityDefinition("ApiKey", ApiKey.OpenApiSecurityScheme);
+                c.AddSecurityRequirement(ApiKey.OpenApiSecurityRequirement("ApiKey"));
             });
         }
     }
