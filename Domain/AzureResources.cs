@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Container.Updater.Options;
 using Microsoft.Azure.Management.Fluent;
@@ -21,7 +22,7 @@ namespace Container.Updater.Domain
                 ClientSecret = authOptions.Value.ClientSecret
             };
 
-            var foo = new AzureCredentials(servicePrincipal, authOptions.Value.TenantId.ToString(), new AzureEnvironment());
+            var foo = new AzureCredentials(servicePrincipal, authOptions.Value.TenantId.ToString(), AzureEnvironment.AzureGlobalCloud);
 
             _azure = Azure.Authenticate(foo).WithSubscription(authOptions.Value.SubscriptionId.ToString());
         }
