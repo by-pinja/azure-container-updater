@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Container.Updater</RootNamespace>
+    <UserSecretsId>adf159a9-f136-4c68-9ed4-bf0d26a0b93b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
