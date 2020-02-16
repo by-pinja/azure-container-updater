@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Container.Updater.Domain;
 using Container.Updater.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,9 @@ namespace Container.Updater
         {
             services.AddControllers();
 
+            var asd = Configuration.GetSection("ApiAuthentication:Keys")
+                        .AsEnumerable();
+
             services.AddOptions<AzureAuthentication>()
                 .Bind(Configuration.GetSection("AzureAuthentication"))
                 .ValidateDataAnnotations();
@@ -42,6 +46,8 @@ namespace Container.Updater
 
                     options.ValidApiKeys = keys;
                 });
+
+            services.AddTransient<AzureResources>();
 
             AddSwaggerGenConfiguration(services);
         }

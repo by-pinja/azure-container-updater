@@ -10,6 +10,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
     <PackageReference Include="Protacon.NetCore.WebApi.ApiKeyAuth" Version="3.0.0" />
     <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.29.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -12,29 +12,40 @@ namespace Container.Updater.Domain
 
     public class AzureResources
     {
-        private IAzure _azure;
+        private readonly IOptions<AzureAuthentication> _authOptions;
 
         public AzureResources(IOptions<AzureAuthentication> authOptions)
         {
+            _authOptions = authOptions;
+        }
+
+        public async Task<IEnumerable<AzureContainerResource>> GetAzureWebAppsWithContainers()
+        {
+            var azure = GetAzureConnection();
+
+            var webApps = azure.WebApps.List();
+
+
+            var linuxContainerApps = webApps
+                .Where(x => x.Inner.Kind == "app,linux,container")
+                .Select(x => x.Refresh())
+                .Select(x => new AzureContainerResource(x))
+                .ToList();
+
+            return linuxContainerApps;
+        }
+
+        private IAzure GetAzureConnection()
+        {
             var servicePrincipal = new ServicePrincipalLoginInformation()
             {
-                ClientId = authOptions.Value.ClientId.ToString(),
-                ClientSecret = authOptions.Value.ClientSecret
+                ClientId = _authOptions.Value.ClientId,
+                ClientSecret = _authOptions.Value.ClientSecret
             };
 
-            var foo = new AzureCredentials(servicePrincipal, authOptions.Value.TenantId.ToString(), AzureEnvironment.AzureGlobalCloud);
+            var azureCred = new AzureCredentials(servicePrincipal, _authOptions.Value.TenantId, AzureEnvironment.AzureGlobalCloud);
 
-            _azure = Azure.Authenticate(foo).WithSubscription(authOptions.Value.SubscriptionId.ToString());
-        }
-
-        public async Task<IEnumerable<object>> GetResourcesWithContainers()
-        {
-            var foo = await _azure.WebApps.ListAsync();
-            return null;
-        }
-
-        public void UpdateResource(AzureResource resource)
-        {
+            return Azure.Authenticate(azureCred).WithSubscription(_authOptions.Value.SubscriptionId);
         }
     }
 }

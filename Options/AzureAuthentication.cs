@@ -1,17 +1,16 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Container.Updater.Options
 {
     public class AzureAuthentication
     {
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         public string TenantId { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         public string SubscriptionId { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         public string ClientId { get; set; }
 
         [Required(AllowEmptyStrings = false)]
