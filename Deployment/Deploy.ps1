@@ -7,8 +7,8 @@ Param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-Write-Host "Creating resource group $($settingsJson.ResourceGroupName)"
-New-AzResourceGroup -Name $ResourceGroup -Location "north-europe" -Force -Tag $Tags
+Write-Host "Creating resource group $($ResourceGroup)"
+New-AzResourceGroup -Name $ResourceGroup -Location "northeurope" -Force -Tag $Tags
 
 function PublishFunction([string] $WebAppName)
 {
@@ -23,8 +23,8 @@ function PublishFunction([string] $WebAppName)
 
     Write-Host "Deploying $deployZip to $WebAppName in $ResourceGroup..."
 
-    #$webApp = Get-AzWebApp -ResourceGroupName $ResourceGroup -Name $WebAppName
-    #Publish-AzWebApp -WebApp $webApp -ArchivePath $fullZipTarget -Force
+    $webApp = Get-AzWebApp -ResourceGroupName $ResourceGroup -Name $WebAppName
+    Publish-AzWebApp -WebApp $webApp -ArchivePath $deployZip -Force
 
     Remove-Item $publishFolder -Recurse -Force
     Remove-Item $deployZip
@@ -37,3 +37,5 @@ New-AzResourceGroupDeployment `
     -ResourceGroupName $ResourceGroup `
     -appName $ResourceGroup `
     -ApiKey (ConvertTo-SecureString -String "abc" -AsPlainText -Force)
+
+PublishFunction $ResourceGroup
