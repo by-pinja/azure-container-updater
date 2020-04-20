@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Container.Updater.Controllers.CustomApiKeyAuth;
 using Container.Updater.Domain;
 using Container.Updater.Options;
 using Microsoft.AspNetCore.Http;
@@ -14,10 +15,12 @@ using Newtonsoft.Json;
 public class UpdateRequestController
 {
     private readonly IOptions<AzureAuthentication> _settings;
+    private readonly CustomApiKeyAuth _apiKeyAuth;
 
-    public UpdateRequestController(IOptions<AzureAuthentication> settings)
+    public UpdateRequestController(IOptions<AzureAuthentication> settings, CustomApiKeyAuth apiKeyAuth)
     {
         _settings = settings;
+        _apiKeyAuth = apiKeyAuth;
     }
 
     [FunctionName("UpdateRequest")]
@@ -25,6 +28,9 @@ public class UpdateRequestController
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "update")]HttpRequest req,
         ILogger log)
     {
+        if(!_apiKeyAuth.Validate(req))
+            return new UnauthorizedResult();
+
         var azureResources = new AzureResources(_settings);
 
         var request = JsonConvert.DeserializeObject<UpdateRequest>(await new StreamReader(req.Body).ReadToEndAsync());

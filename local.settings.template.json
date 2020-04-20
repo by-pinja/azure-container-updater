@@ -1,0 +1,11 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "AzureAuthentication:TenantId": "00000000-0000-0000-0000-000000000000",
+        "AzureAuthentication:SubscriptionId": "00000000-0000-0000-0000-000000000000",
+        "AzureAuthentication:ClientSecret": "suchsecret",
+        "AzureAuthentication:ClientId": "00000000-0000-0000-0000-000000000000",
+        "ApiKey": "00000000-0000-0000-0000-000000000000"
+    }
+}

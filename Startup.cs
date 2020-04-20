@@ -4,6 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using Container.Updater.Options;
 using Microsoft.Extensions.Configuration;
+using Container.Updater.Controllers.CustomApiKeyAuth;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -16,7 +17,20 @@ namespace Container.Updater
             builder
                 .Services
                 .AddOptions<AzureAuthentication>()
-                .Configure<IConfiguration>((settings, configuration) => { configuration.Bind(settings); });
+                .Configure<IConfiguration>((settings, configuration) =>
+                {
+                    configuration.GetSection("AzureAuthentication").Bind(settings);
+                });
+
+            builder
+                .Services
+                .AddOptions<ApiAuthSettings>()
+                .Configure<IConfiguration>((settings, configuration) =>
+                {
+                    configuration.Bind(settings);
+                });
+
+            builder.Services.AddScoped<CustomApiKeyAuth>();
         }
     }
 }
