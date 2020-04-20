@@ -36,15 +36,24 @@ namespace Container.Updater.Domain
 
         private IAzure GetAzureConnection()
         {
-            var servicePrincipal = new ServicePrincipalLoginInformation()
+            if (_authOptions.Value.ManualAuthentication)
             {
-                ClientId = _authOptions.Value.ClientId,
-                ClientSecret = _authOptions.Value.ClientSecret
-            };
+                var servicePrincipal = new ServicePrincipalLoginInformation()
+                {
+                    ClientId = _authOptions.Value.ClientId,
+                    ClientSecret = _authOptions.Value.ClientSecret
+                };
 
-            var azureCred = new AzureCredentials(servicePrincipal, _authOptions.Value.TenantId, AzureEnvironment.AzureGlobalCloud);
+                var azureCred = new AzureCredentials(servicePrincipal, _authOptions.Value.TenantId, AzureEnvironment.AzureGlobalCloud);
 
-            return Azure.Authenticate(azureCred).WithSubscription(_authOptions.Value.SubscriptionId);
+                return Azure.Authenticate(azureCred).WithSubscription(_authOptions.Value.SubscriptionId);
+            }
+            else
+            {
+                var loginInfo = new MSILoginInformation(MSIResourceType.AppService);
+                var credentials = SdkContext.AzureCredentialsFactory.FromMSI(loginInfo, AzureEnvironment.AzureGlobalCloud);
+                return Azure.Authenticate(credentials).WithSubscription(_authOptions.Value.SubscriptionId);
+            }
         }
     }
 }
