@@ -1,10 +1,14 @@
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory)]$ResourceGroup
+    [Parameter(Mandatory)][string]$ResourceGroup,
+    [Parameter()][hashtable]$Tags
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+
+Write-Host "Creating resource group $($settingsJson.ResourceGroupName)"
+New-AzResourceGroup -Name $ResourceGroup -Location "north-europe" -Force -Tag $Tags
 
 function PublishFunction([string] $WebAppName)
 {
@@ -26,4 +30,10 @@ function PublishFunction([string] $WebAppName)
     Remove-Item $deployZip
 }
 
-PublishFunction
+Write-Host 'Creating environment...'
+New-AzResourceGroupDeployment `
+    -Name 'deployment-script' `
+    -TemplateFile "$PsScriptRoot/azure-container-updater-app.json" `
+    -ResourceGroupName $ResourceGroup `
+    -appName $ResourceGroup `
+    -ApiKey (ConvertTo-SecureString -String "abc" -AsPlainText -Force)
