@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <RootNamespace>Container.Updater</RootNamespace>
-    <UserSecretsId></UserSecretsId>
+    <UserSecretsId>adf159a9-f136-4c68-9ed4-bf0d26a0b93b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.6" />
