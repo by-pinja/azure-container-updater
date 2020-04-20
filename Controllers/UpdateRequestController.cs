@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Container.Updater.Controllers.CustomApiKeyAuth;
@@ -45,6 +46,11 @@ public class UpdateRequestController
             await resourceWithContainer.ForceImageToUpdate();
         }
 
-        return new OkObjectResult(matchingResources.Select(x => new ImageUpdateResult()));
+        return new OkObjectResult(matchingResources.Select(x => new ImageUpdateResult {
+            Image = x.Image,
+            TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            ResourceId = x.ResourceId,
+            Message = "Image updated by stopping and then starting application"
+        }));
     }
 }
