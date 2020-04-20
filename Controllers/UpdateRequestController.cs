@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Container.Updater.Domain;
@@ -11,14 +11,21 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-public static class UpdateRequestController
+public class UpdateRequestController
 {
-    [FunctionName("UpdateRequest")]
-    public static async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "update")]
-    HttpRequest req, ILogger log, IOptions<AzureAuthentication> settings)
+    private readonly IOptions<AzureAuthentication> _settings;
+
+    public UpdateRequestController(IOptions<AzureAuthentication> settings)
     {
-        var azureResources = new AzureResources(settings);
+        _settings = settings;
+    }
+
+    [FunctionName("UpdateRequest")]
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "update")]HttpRequest req,
+        ILogger log)
+    {
+        var azureResources = new AzureResources(_settings);
 
         var request = JsonConvert.DeserializeObject<UpdateRequest>(await new StreamReader(req.Body).ReadToEndAsync());
 
