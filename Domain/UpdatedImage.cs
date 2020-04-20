@@ -1,4 +1,4 @@
-namespace azure_container_updater.Controllers
+namespace Container.Updater.Domain
 {
     public class ImageUpdateResult
     {

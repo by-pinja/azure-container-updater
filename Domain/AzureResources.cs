@@ -23,8 +23,7 @@ namespace Container.Updater.Domain
         {
             var azure = GetAzureConnection();
 
-            var webApps = azure.WebApps.List();
-
+            var webApps = await azure.WebApps.ListAsync();
 
             var linuxContainerApps = webApps
                 .Where(x => x.Inner.Kind == "app,linux,container")
