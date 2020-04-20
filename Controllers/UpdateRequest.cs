@@ -15,7 +15,7 @@ public static class UpdateRequestController
 {
     [FunctionName("UpdateRequest")]
     public static async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "/update")]
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "update")]
     HttpRequest req, ILogger log, IOptions<AzureAuthentication> settings)
     {
         var azureResources = new AzureResources(settings);
