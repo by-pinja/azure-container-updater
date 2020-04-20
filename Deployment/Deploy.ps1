@@ -7,8 +7,8 @@ Param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-Write-Host "Creating resource group $($settingsJson.ResourceGroupName)"
-New-AzResourceGroup -Name $ResourceGroup -Location "north-europe" -Force -Tag $Tags
+Write-Host "Creating resource group $($ResourceGroup)"
+New-AzResourceGroup -Name $ResourceGroup -Location "northeurope" -Force -Tag $Tags
 
 function PublishFunction([string] $WebAppName)
 {

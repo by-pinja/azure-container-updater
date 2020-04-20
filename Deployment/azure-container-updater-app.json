@@ -25,7 +25,7 @@
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
             "name": "[variables('hostingPlanName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Y1",
                 "tier": "Dynamic"
@@ -33,10 +33,6 @@
             "properties": {
                 "name": "[variables('hostingPlanName')]",
                 "computeMode": "Dynamic"
-            },
-            "tags": {
-                "displayName": "Server for function app",
-                "environment": "[parameters('environment')]"
             }
         },
         {
@@ -44,15 +40,10 @@
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
             "name": "[variables('functionAppName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
             ],
-            "tags": {
-                "displayName": "Function app",
-                "environment": "[parameters('environment')]"
-            },
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
                 "siteConfig": {
@@ -60,10 +51,6 @@
                     "phpVersion": "",
                     "use32BitWorkerProcess": false,
                     "appSettings": [
-                        {
-                            "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(variables('functionAppName'))]"
-                        },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
                             "value": "~3"
@@ -89,12 +76,11 @@
             "apiVersion": "2015-05-01",
             "name": "[variables('applicationInsightsName')]",
             "type": "Microsoft.Insights/components",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "kind": "rest",
             "tags": {
                 "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource",
                 "displayName": "Application insights",
-                "environment": "[parameters('environment')]"
             },
             "properties": {
                 "ApplicationId": "[variables('applicationInsightsName')]",
