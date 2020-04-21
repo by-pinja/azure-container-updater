@@ -2,7 +2,12 @@
 Param(
     [Parameter(Mandatory)][string]$ResourceGroup,
     [Parameter(Mandatory)][string]$ApiKey,
-    [Parameter()][hashtable]$Tags
+    [Parameter()][hashtable]$Tags,
+
+    # In CI there isn't container currently that handles both correct dotnet version and
+    # powershell at same time, for this reason this override can be used allready compiled package of 
+    # function instead of building it during deployment.
+    [Parameter()][string]$PublishFolder
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,10 +17,12 @@ Write-Host "Creating resource group $($ResourceGroup)"
 New-AzResourceGroup -Name $ResourceGroup -Location "northeurope" -Force -Tag $Tags
 
 function PublishFunction([string] $WebAppName) {
-    $publishFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid())
-    New-Item -ItemType Directory $publishFolder
-    dotnet publish -c Release -o $publishFolder $PSScriptRoot/../Azure.Container.Updater.csproj
-
+    if (-not $PublishFolder) {
+        $publishFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid())
+        New-Item -ItemType Directory $publishFolder
+        dotnet publish -c Release -o $publishFolder $PSScriptRoot/../Azure.Container.Updater.csproj
+    }
+    
     $deployZip = [System.IO.Path]::GetTempFileName() + ".zip"
 
     Write-Host "Compressing $publishFolder\*"

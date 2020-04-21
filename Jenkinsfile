@@ -14,14 +14,14 @@ podTemplate(label: pod.label,
       stage('Build') {
         container('dotnet') {
           sh """
-            dotnet build
+            dotnet publish -c Release -o ${workspace}/out/ ./Azure.Container.Updater.csproj
           """
         }
       }
       stage('Deploy') {
         withCredentials([string(credentialsId: 'CONTAINER_IMAGE_UPDATER_API_KEY', variable: 'API_KEY')]) {
             toAzureTestEnv {
-                sh "pwsh -command './Deployment/Deploy.ps1 -Tags @{subproject='2026956'} -ResourceGroup pinja-azure-container-updater' -ApiKey '$API_KEY'"
+                sh "pwsh -command './Deployment/Deploy.ps1 -Tags @{subproject='2026956'} -ResourceGroup pinja-azure-container-updater' -ApiKey '$API_KEY' -PublishFolder '${workspace}/out/'"
             }
         }
       }
