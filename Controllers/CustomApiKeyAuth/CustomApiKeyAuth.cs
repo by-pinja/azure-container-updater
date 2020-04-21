@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Container.Updater.Controllers.CustomApiKeyAuth
@@ -13,9 +14,12 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
     public class CustomApiKeyAuth
     {
         private readonly IOptions<ApiAuthSettings> _settings;
+        private readonly ILogger _logger;
 
-        public CustomApiKeyAuth(IOptions<ApiAuthSettings> settings)
+        public CustomApiKeyAuth(IOptions<ApiAuthSettings> settings, ILogger logger)
         {
+            _logger = logger;
+            _settings = settings;
         }
 
         public bool Validate(HttpRequest httpRequest)
