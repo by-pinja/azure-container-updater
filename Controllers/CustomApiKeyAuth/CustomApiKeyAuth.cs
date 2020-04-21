@@ -21,7 +21,7 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
 
         public bool Validate(HttpRequest httpRequest)
         {
-            var matchingHeader = httpRequest.Headers.FirstOrDefault(x => x.Key == "Authentication");
+            var matchingHeader = httpRequest.Headers.FirstOrDefault(x => x.Key == "Authorization");
 
             if(matchingHeader.Equals(default) || matchingHeader.Value.Count() != 1)
                 return false;
