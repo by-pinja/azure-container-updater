@@ -16,7 +16,6 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
 
         public CustomApiKeyAuth(IOptions<ApiAuthSettings> settings)
         {
-            _settings = settings;
         }
 
         public bool Validate(HttpRequest httpRequest)
@@ -31,7 +30,7 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
             if(tokens.Length != 2 || !tokens[0].Equals("apikey", StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
-            if(tokens[1] != "abc")
+            if(tokens[1] != _settings.Value.ApiKey)
                 return false;
 
             return true;
