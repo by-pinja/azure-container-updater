@@ -1,6 +1,7 @@
 [CmdletBinding()]
 Param(
     [Parameter(Mandatory)][string]$ResourceGroup,
+    [Parameter(Mandatory)][string]$ApiKey,
     [Parameter()][hashtable]$Tags
 )
 
@@ -35,7 +36,7 @@ $functionAppOutputs = New-AzResourceGroupDeployment `
     -TemplateFile "$PsScriptRoot/azure-container-updater-app.json" `
     -ResourceGroupName $ResourceGroup `
     -appName $ResourceGroup `
-    -ApiKey (ConvertTo-SecureString -String "abc" -AsPlainText -Force)
+    -ApiKey (ConvertTo-SecureString -String $ApiKey -AsPlainText -Force)
 
 try {
     New-AzRoleAssignment -ObjectId $functionAppOutputs.Outputs.principalId.Value -RoleDefinitionName "Contributor" -Scope "/subscriptions/$($functionAppOutputs.Outputs.subscriptionId.Value)/" | Out-Null
