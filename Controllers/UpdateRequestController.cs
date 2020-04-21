@@ -26,10 +26,10 @@ public class UpdateRequestController
 
     [FunctionName("UpdateRequest")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "update")]HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "update")]HttpRequest req,
         ILogger log)
     {
-        if(!_apiKeyAuth.Validate(req))
+        if (!_apiKeyAuth.Validate(req))
             return new UnauthorizedResult();
 
         var azureResources = new AzureResources(_settings);
@@ -46,7 +46,8 @@ public class UpdateRequestController
             await resourceWithContainer.ForceImageToUpdate();
         }
 
-        return new OkObjectResult(matchingResources.Select(x => new ImageUpdateResult {
+        return new OkObjectResult(matchingResources.Select(x => new ImageUpdateResult
+        {
             Image = x.Image,
             TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             ResourceId = x.ResourceId,

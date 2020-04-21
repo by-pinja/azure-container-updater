@@ -10,8 +10,7 @@ Set-StrictMode -Version Latest
 Write-Host "Creating resource group $($ResourceGroup)"
 New-AzResourceGroup -Name $ResourceGroup -Location "northeurope" -Force -Tag $Tags
 
-function PublishFunction([string] $WebAppName)
-{
+function PublishFunction([string] $WebAppName) {
     $publishFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid())
     New-Item -ItemType Directory $publishFolder
     dotnet publish -c Release -o $publishFolder $PSScriptRoot/../Azure.Container.Updater.csproj
@@ -31,11 +30,18 @@ function PublishFunction([string] $WebAppName)
 }
 
 Write-Host 'Creating environment...'
-New-AzResourceGroupDeployment `
+$functionAppOutputs = New-AzResourceGroupDeployment `
     -Name 'deployment-script' `
     -TemplateFile "$PsScriptRoot/azure-container-updater-app.json" `
     -ResourceGroupName $ResourceGroup `
     -appName $ResourceGroup `
     -ApiKey (ConvertTo-SecureString -String "abc" -AsPlainText -Force)
 
-PublishFunction $ResourceGroup
+try {
+    New-AzRoleAssignment -ObjectId $functionAppOutputs.Outputs.principalId.Value -RoleDefinitionName "Contributor" -Scope "/subscriptions/$($functionAppOutputs.Outputs.subscriptionId.Value)/" | Out-Null
+}
+catch {
+    Write-Host "Failed to create new role assignment, this usually means that it already exist."
+}
+
+PublishFunction $functionAppOutputs.Outputs.appName.Value

@@ -16,11 +16,24 @@
         }
     },
     "variables": {
-        "functionAppName": "[parameters('appName')]",
-        "hostingPlanName": "[parameters('appName')]",
+        "functionAppName": "[concat('az-container-updater-', uniqueString(resourceGroup().id))]",
+        "hostingPlanName": "[concat('az-container-updater-', uniqueString(resourceGroup().id))]",
+        "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
+        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "applicationInsightsName": "[parameters('appName')]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "apiVersion": "2019-04-01",
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_RAGRS",
+                "tier": "Standard"
+            }
+        },
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
@@ -42,15 +55,28 @@
             "name": "[variables('functionAppName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
                 "siteConfig": {
-                    "defaultDocuments": [],
+                    "defaultDocuments": [
+                    ],
                     "phpVersion": "",
                     "use32BitWorkerProcess": false,
                     "appSettings": [
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "AzureAuthentication:SubscriptionId",
+                            "value": "[replace(subscription().id, '/subscriptions/', '')]"
+                        },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
                             "value": "~3"
@@ -80,7 +106,7 @@
             "kind": "rest",
             "tags": {
                 "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource",
-                "displayName": "Application insights",
+                "displayName": "Application insights"
             },
             "properties": {
                 "ApplicationId": "[variables('applicationInsightsName')]",
@@ -88,5 +114,19 @@
                 "Application_Type": "web"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "principalId": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/sites/', variables('functionAppName')), '2018-11-01', 'Full').identity.principalId]"
+        },
+        "subscriptionId": {
+            "type": "string",
+            "value": "[subscription().subscriptionid]"
+        },
+        "appName": {
+            "type": "string",
+            "value": "[variables('functionAppName')]"
+        }
+    }
 }

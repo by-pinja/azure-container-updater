@@ -19,7 +19,7 @@ namespace Container.Updater.Domain
             _authOptions = authOptions;
         }
 
-        public async Task<IEnumerable<AzureContainerResource>> GetAzureWebAppsWithContainers()
+        public async Task<IEnumerable<AzureContainerResource>>  GetAzureWebAppsWithContainers()
         {
             var azure = GetAzureConnection();
 
@@ -52,7 +52,7 @@ namespace Container.Updater.Domain
             {
                 var loginInfo = new MSILoginInformation(MSIResourceType.AppService);
                 var credentials = SdkContext.AzureCredentialsFactory.FromMSI(loginInfo, AzureEnvironment.AzureGlobalCloud);
-                return Azure.Authenticate(credentials).WithSubscription(_authOptions.Value.SubscriptionId);
+                return Azure.Authenticate(credentials).WithDefaultSubscription();
             }
         }
     }
