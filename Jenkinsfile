@@ -19,9 +19,11 @@ podTemplate(label: pod.label,
         }
       }
       stage('Deploy') {
-        withCredentials([string(credentialsId: 'CONTAINER_IMAGE_UPDATER_API_KEY', variable: 'API_KEY')]) {
-            toAzureTestEnv {
-                sh "pwsh -command './Deployment/Deploy.ps1 -Tags @{subproject='2026956'} -ResourceGroup pinja-azure-container-updater' -ApiKey '$API_KEY' -PublishFolder '${workspace}/out/'"
+        if(env.BRANCH_NAME == "master") {
+            withCredentials([string(credentialsId: 'CONTAINER_IMAGE_UPDATER_API_KEY', variable: 'API_KEY')]) {
+                toAzureTestEnv {
+                    sh "pwsh -command './Deployment/Deploy.ps1 -Tags @{subproject='2026956'} -ResourceGroup pinja-azure-container-updater' -ApiKey '$API_KEY' -PublishFolder '${workspace}/out/'"
+                }
             }
         }
       }
