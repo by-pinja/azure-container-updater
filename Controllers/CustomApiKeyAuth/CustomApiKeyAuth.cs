@@ -40,6 +40,11 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
                 return false;
             }
 
+            if(_settings.Value.ApiKey == default)
+            {
+                throw new InvalidOperationException("ApiKey is not properly configured for application!");
+            }
+
             if(tokens[1] != _settings.Value.ApiKey)
             {
                 _logger.LogDebug("Authorization failed because apikey were invalid.");
