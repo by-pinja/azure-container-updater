@@ -49,7 +49,6 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
             {
                 _logger.LogDebug("Authorization failed because apikey were invalid.");
                 return false;
-
             }
 
             return true;
