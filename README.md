@@ -1,7 +1,7 @@
 # Azure container image updater
 
 When new container image is published with changing label like `latest`, `latest-master` (or similar) in development environments it
-is usefull that matching images like `foo:latest` on publish of new image `foo:latest` will be automatically updated to running applications.
+is useful that matching images like `foo:latest` on publish of new image `foo:latest` will be automatically updated to running applications.
 
 This middleman removes requirement that builds have to understand locations where image are actually running: they can simply call globally
 update all matching images in all environments.
@@ -19,7 +19,7 @@ dotnet build
 func start
 ```
 
-Function runtime prints localhost address where functions are running. Use that address so you can test image update locally:
+Function runtime prints localhost address where functions are running. Use that address to test image updating locally:
 
 ```powershell
 Invoke-RestMethod https://localhost:1234/api/update -Method Post -Body (@{ ImageName = "ptcos/pdf-storage"; Tag = "latest" } | ConvertTo-Json) -Headers @{Authorization = "ApiKey apikeyhere"}
