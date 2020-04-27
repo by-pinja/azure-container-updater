@@ -14,9 +14,9 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
     public class CustomApiKeyAuth
     {
         private readonly IOptions<ApiAuthSettings> _settings;
-        private readonly ILogger _logger;
+        private readonly ILogger<CustomApiKeyAuth> _logger;
 
-        public CustomApiKeyAuth(IOptions<ApiAuthSettings> settings, ILogger logger)
+        public CustomApiKeyAuth(IOptions<ApiAuthSettings> settings, ILogger<CustomApiKeyAuth> logger)
         {
             _logger = logger;
             _settings = settings;
@@ -24,15 +24,15 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
 
         public bool Validate(HttpRequest httpRequest)
         {
-            var matchingHeader = httpRequest.Headers.FirstOrDefault(x => x.Key == "Authorization");
+            var matchingHeader = httpRequest.Headers["Authorization"];
 
-            if(matchingHeader.Equals(default) || matchingHeader.Value.Count() != 1)
+            if(matchingHeader.Count() != 1)
             {
-                _logger.LogDebug($"Authorization failed because no matching header found, available headers: {string.Join(", ", httpRequest.Headers.Select(x => x.Key))}");
+                _logger.LogDebug("Authorization failed because no matching header found, available headers: {headers}", string.Join(", ", httpRequest.Headers.Select(x => x.Key)));
                 return false;
             }
 
-            var tokens = matchingHeader.Value.First().Split(" ");
+            var tokens = matchingHeader.First().Split(" ");
 
             if(tokens.Length != 2 || !tokens[0].Equals("apikey", StringComparison.InvariantCultureIgnoreCase))
             {

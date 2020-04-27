@@ -22,7 +22,7 @@ func start
 Function runtime prints localhost address where functions are running. Use that address to test image updating locally:
 
 ```powershell
-Invoke-RestMethod https://localhost:1234/api/update -Method Post -Body (@{ ImageName = "ptcos/pdf-storage"; Tag = "latest" } | ConvertTo-Json) -Headers @{Authorization = "ApiKey apikeyhere"}
+Invoke-RestMethod http://localhost:1234/api/update -Method Post -Body (@{ ImageName = "ptcos/pdf-storage"; Tag = "latest" } | ConvertTo-Json) -Headers @{Authorization = "ApiKey apikeyhere"}
 ```
 
 ## Deployment
