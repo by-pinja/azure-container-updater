@@ -13,6 +13,7 @@ namespace Container.Updater.Domain
         }
 
         public string Image => _app.LinuxFxVersion.Replace("DOCKER|", "");
+        public string ResourceId => _app.Id;
 
         public async Task ForceImageToUpdate()
         {

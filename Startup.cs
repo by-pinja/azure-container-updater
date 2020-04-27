@@ -1,100 +1,36 @@
-using System;
-using System.IO;
-using System.Linq;
-using Container.Updater.Domain;
-using Container.Updater.Options;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Container.Updater;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Protacon.NetCore.WebApi.ApiKeyAuth;
+using Container.Updater.Options;
+using Microsoft.Extensions.Configuration;
+using Container.Updater.Controllers.CustomApiKeyAuth;
+
+[assembly: FunctionsStartup(typeof(Startup))]
 
 namespace Container.Updater
 {
-    public class Startup
+    public class Startup : FunctionsStartup
     {
-        public Startup(IConfiguration configuration)
+        public override void Configure(IFunctionsHostBuilder builder)
         {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllers();
-
-            var asd = Configuration.GetSection("ApiAuthentication:Keys")
-                        .AsEnumerable();
-
-            services.AddOptions<AzureAuthentication>()
-                .Bind(Configuration.GetSection("AzureAuthentication"))
-                .ValidateDataAnnotations();
-
-            services.AddAuthentication()
-                .AddApiKeyAuth(options =>
+            builder
+                .Services
+                .AddOptions<AzureAuthentication>()
+                .Configure<IConfiguration>((settings, configuration) =>
                 {
-                    if (Configuration.GetChildren().All(x => x.Key != "ApiAuthentication"))
-                        throw new InvalidOperationException($"Expected 'ApiAuthentication' section.");
-
-                    var keys = Configuration.GetSection("ApiAuthentication:Keys")
-                        .AsEnumerable()
-                        .Where(x => x.Value != null)
-                        .Select(x => x.Value);
-
-                    options.ValidApiKeys = keys;
+                    configuration.GetSection("AzureAuthentication").Bind(settings);
                 });
 
-            services.AddTransient<AzureResources>();
+            builder
+                .Services
+                .AddOptions<ApiAuthSettings>()
+                .Configure<IConfiguration>((settings, configuration) =>
+                {
+                    configuration.Bind(settings);
+                });
 
-            AddSwaggerGenConfiguration(services);
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pdf.Storage");
-                c.RoutePrefix = "doc";
-
-            });
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
-
-        private static IServiceCollection AddSwaggerGenConfiguration(IServiceCollection services)
-        {
-            return services.AddSwaggerGen(c =>
-            {
-                var basePath = AppContext.BaseDirectory;
-
-                c.SwaggerDoc("v1",
-                    new OpenApiInfo
-                    {
-                        Title = "Azure.Container.Updater",
-                        Version = "v1",
-                        Description = File.ReadAllText(Path.Combine(basePath, "README.md"))
-                    });
-
-                c.AddSecurityDefinition("ApiKey", ApiKey.OpenApiSecurityScheme);
-                c.AddSecurityRequirement(ApiKey.OpenApiSecurityRequirement("ApiKey"));
-            });
+            builder.Services.AddScoped<CustomApiKeyAuth>();
         }
     }
 }

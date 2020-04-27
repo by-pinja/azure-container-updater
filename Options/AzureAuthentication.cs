@@ -4,16 +4,10 @@ namespace Container.Updater.Options
 {
     public class AzureAuthentication
     {
-        [Required(AllowEmptyStrings = false)]
-        public string TenantId { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
+        public bool ManualAuthentication { get; set; }
         public string SubscriptionId { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
+        public string TenantId { get; set; }
         public string ClientId { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
         public string ClientSecret { get; set; }
     }
 }
