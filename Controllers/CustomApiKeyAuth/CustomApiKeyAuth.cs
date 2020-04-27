@@ -27,15 +27,25 @@ namespace Container.Updater.Controllers.CustomApiKeyAuth
             var matchingHeader = httpRequest.Headers.FirstOrDefault(x => x.Key == "Authorization");
 
             if(matchingHeader.Equals(default) || matchingHeader.Value.Count() != 1)
+            {
+                _logger.LogDebug($"Authorization failed because no matching header found, available headers: {string.Join(", ", httpRequest.Headers.Select(x => x.Key))}");
                 return false;
+            }
 
             var tokens = matchingHeader.Value.First().Split(" ");
 
             if(tokens.Length != 2 || !tokens[0].Equals("apikey", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _logger.LogDebug("Authorization failed because apikey didn't match 'ApiKey yourkey' pattern.");
                 return false;
+            }
 
             if(tokens[1] != _settings.Value.ApiKey)
+            {
+                _logger.LogDebug("Authorization failed because apikey were invalid.");
                 return false;
+
+            }
 
             return true;
         }
